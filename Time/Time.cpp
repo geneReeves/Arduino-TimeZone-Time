@@ -19,6 +19,8 @@
   6  Jan 2010 - initial release 
   12 Feb 2010 - fixed leap year calculation error
   1  Nov 2010 - fixed setTime bug (thanks to Korman for this)
+  
+  4  Apr 2012 - added support for TimeZone and DST (GgR)
 */
 
 #if ARDUINO >= 100
@@ -192,6 +194,25 @@ void breakTime(time_t time, tmElements_t &tm){
   }
   tm.Month = month + 1;  // jan is month 1  
   tm.Day = time + 1;     // day of month
+  tm.isDST = false;
+  if (tm.Month == DST_BEGIN_MONTH)
+  {
+    if (tm.Day==DST_BEGIN_DAY)
+      tm.isDST = (tm.Hour >= 2);
+    else
+      tm.isDST = (tm.Day > DST_BEGIN_DAY);
+  }
+  else if (tm.Month > DST_BEGIN_MONTH)
+  {
+    if (tm.Month == DST_END_MONTH) 
+    {
+      if (tm.Day == DST_END_DAY)
+        tm.isDST = (tm.Hour < 2);
+      else
+        tm.isDST = (tm.Day < DST_END_DAY);
+    } else
+     tm.isDST = (tm.Month < DST_END_MONTH);
+  }
 }
 
 time_t makeTime(tmElements_t &tm){   
@@ -231,7 +252,8 @@ static time_t sysTime = 0;
 static time_t prevMillis = 0;
 static time_t nextSyncTime = 0;
 static timeStatus_t Status = timeNotSet;
-
+static int TimeZone = 0;
+static bool isDST = false;
 getExternalTime getTimePtr;  // pointer to external sync function
 //setExternalTime setTimePtr; // not used in this version
 
@@ -239,8 +261,13 @@ getExternalTime getTimePtr;  // pointer to external sync function
 time_t sysUnsyncedTime = 0; // the time sysTime unadjusted by sync  
 #endif
 
+void setTimeZone(int iTimeZone) {
+  TimeZone = iTimeZone;
+}
 
-time_t now(){
+int getTimeZone() {return TimeZone;}
+
+time_t now(bool isGMT){
   while( millis() - prevMillis >= 1000){      
     sysTime++;
     prevMillis += 1000;	
@@ -257,7 +284,10 @@ time_t now(){
         Status = (Status == timeNotSet) ?  timeNotSet : timeNeedsSync;        
     }
   }  
-  return sysTime;
+  if (isGMT)
+    return sysTime;
+  else
+    return (time_t)(sysTime + (TimeZone + ( isDST ? SECS_PER_HOUR : 0 ))); 
 }
 
 void setTime(time_t t){ 

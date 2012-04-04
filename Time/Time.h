@@ -33,7 +33,14 @@ typedef struct  {
   uint8_t Day;
   uint8_t Month; 
   uint8_t Year;   // offset from 1970; 
+  int TimeZone;   // in seconds
+  bool isDST;     // Daylight Savings Time, when true, subtract an
 } 	tmElements_t, TimeElements, *tmElementsPtr_t;
+
+#define DST_BEGIN_DAY 11
+#define DST_BEGIN_MONTH 3
+#define DST_END_DAY 4
+#define DST_END_MONTH 11
 
 //convenience macros to convert to and from tm years 
 #define  tmYearToCalendar(Y) ((Y) + 1970)  // full four digit year 
@@ -43,6 +50,7 @@ typedef struct  {
 
 typedef time_t(*getExternalTime)();
 //typedef void  (*setExternalTime)(const time_t); // not used in this version
+
 
 
 /*==============================================================================*/
@@ -69,6 +77,7 @@ typedef time_t(*getExternalTime)();
 #define elapsedSecsThisWeek(_time_)  (elapsedSecsToday(_time_) +  ((dayOfWeek(_time_)-1) * SECS_PER_DAY) )   // note that week starts on day 1
 #define previousSunday(_time_)  (_time_ - elapsedSecsThisWeek(_time_))      // time at the start of the week for the given time
 #define nextSunday(_time_) ( previousSunday(_time_)+SECS_PER_WEEK)          // time at the end of the week for the given time
+
 
 
 /* Useful Macros for converting elapsed time to a time_t */
@@ -100,11 +109,12 @@ int     month(time_t t);   // the month for the given time
 int     year();            // the full four digit year: (2009, 2010 etc) 
 int     year(time_t t);    // the year for the given time
 
-time_t now();              // return the current time as seconds since Jan 1 1970 
+time_t now(bool isGMT = true);  // return the current time as seconds since Jan 1 1970 
 void    setTime(time_t t);
 void    setTime(int hr,int min,int sec,int day, int month, int yr);
 void    adjustTime(long adjustment);
-
+void    setTimeZone(int iTimeZone); // adds TimeZone Support
+int     getTimeZone();
 /* date strings */ 
 #define dt_MAX_STRING_LEN 9 // length of longest date string (excluding terminating null)
 char* monthStr(uint8_t month);
@@ -120,7 +130,14 @@ void    setSyncInterval(time_t interval); // set the number of seconds between r
 /* low level functions to convert to and from system time                     */
 void breakTime(time_t time, tmElements_t &tm);  // break time_t into elements
 time_t makeTime(tmElements_t &tm);  // convert time elements into time_t
+time_t makeTime(uint8_t uDay, uint8_t uMonth, uint16_t uYear, uint8_t uHour, uint8_t uMinute, uint8_t uSecond);
+
+
+
+
+
 
 
 #endif /* _Time_h */
+
 
