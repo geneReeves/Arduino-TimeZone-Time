@@ -122,6 +122,11 @@ char* dayStr(uint8_t day);
 char* monthShortStr(uint8_t month);
 char* dayShortStr(uint8_t day);
 	
+/* Print Date and Time functions (GgR)*/	
+void printDate(Print &p, time_t tTime);
+void printTime(Print &p, time_t tTime, bool is24Hr = false);
+void printDateTime(Print &p, time_t tTime, bool is24Hr = false);
+  
 /* time sync functions	*/
 timeStatus_t timeStatus(); // indicates if time has been set and recently synchronized
 void    setSyncProvider( getExternalTime getTimeFunction); // identify the external time provider

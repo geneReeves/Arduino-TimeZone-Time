@@ -335,3 +335,57 @@ void setSyncProvider( getExternalTime getTimeFunction){
 void setSyncInterval(time_t interval){ // set the number of seconds between re-sync
   syncInterval = interval;
 }
+
+	/**************************************************************************************************/
+	//   printDateTime
+	/**************************************************************************************************/
+	void printDateTime(Print &p, time_t tTime, bool is24Hr)
+	{
+		printDate(p, tTime);
+		p.print((char)' ');
+		printTime(p, tTime, is24Hr);
+	}
+
+	/**************************************************************************************************/
+	//   printDateTime
+	/**************************************************************************************************/
+	void printDate(Print &p, time_t tTime)
+	{
+		if (month(tTime) < 10)
+			p.print((char)'0');
+		p.print(month(tTime));
+		p.print((char)'/');
+		if (day(tTime) < 10)
+			p.print((char)'0');
+		p.print(day(tTime));
+		p.print((char)'/');
+		p.print(year(tTime));
+	}
+	
+	/**************************************************************************************************/
+	//   printTime
+	/**************************************************************************************************/
+	void printTime(Print &p, time_t tTime, bool is24Hr)
+	{
+		if (is24Hr)
+		{
+			if (hour(tTime) < 10)
+				p.print((char)'0');
+			p.print(hour(tTime));
+		}
+		else
+		{
+			p.print(hourFormat12(tTime));
+		}
+		p.print((char)':');
+		if (minute(tTime) < 10)
+			p.print((char)'0');
+		p.print(minute(tTime));
+		if (!is24Hr)
+		{
+			if (isAM(tTime))
+				p.print(F(" am"));
+			else
+				p.print(F(" pm"));
+		}
+	}
