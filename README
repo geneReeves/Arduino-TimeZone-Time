@@ -1,0 +1,9 @@
+Description:
+	Fork of Arduino Time Library from Arduino Playground to add support for GMT (timezone support) with daylight savings time (DST).
+
+History:
+	04-03-2012:
+		Original Fork from http://arduino.cc/playground/Code/Time
+		
+	04-05-2012:
+		Added Print Date and Time functions
